@@ -1,0 +1,41 @@
+
+name: Build APK
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: android-actions/setup-android@v3
+        with:
+          accept-android-sdk-licenses: true
+
+      - run: sdkmanager "platforms;android-34" "build-tools;34.0.0"
+
+      - name: install gradle
+        run: |
+          wget -q https://services.gradle.org/distributions/gradle-8.1.1-bin.zip
+          unzip -q gradle-8.1.1-bin.zip -d /opt
+          echo "/opt/gradle-8.1.1/bin" >> $GITHUB_PATH
+
+      - name: rename module file
+        run: |
+          if [ -f app/module_build.gradle.kts ]; then mv app/module_build.gradle.kts app/build.gradle.kts; fi
+
+      - run: gradle :app:assembleDebug --no-daemon
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: apk
+          path: app/build/outputs/apk/debug/*.apk
