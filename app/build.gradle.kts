@@ -24,11 +24,6 @@ android {
     }
 }
 
-repositories {
-    google()
-    mavenCentral()
-}
-
 dependencies {
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("org.jetbrains.kotlin:kotlin-stdlib:1.8.21")
